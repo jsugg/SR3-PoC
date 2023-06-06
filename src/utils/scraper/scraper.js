@@ -1,4 +1,4 @@
-const { TARGET_SETUP } = require('../../../config/sources');
+const { TARGET_SETUP } = require(`${appRoot}/config/sources`);
 require('dotenv').config();
 const appRoot = require('app-root-path').path;
 const { logger } = require(`${appRoot}/src/utils/logger`);
