@@ -1,4 +1,4 @@
-const dataEndpoint = "http://localhost:8080";
+const dataEndpoint = "https://omacaco.onrender.com";
 
 async function fetchData(url) {
     try {
