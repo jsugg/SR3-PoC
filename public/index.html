@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>O' Macaco</title>
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+    <base target="_top">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
+    <script async src="js/scripts.js"></script>
+    <script defer type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7.4.1/swiper-bundle.min.css">
+    <script async src="https://unpkg.com/swiper@7.4.1/swiper-bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.css" />
+    <script async src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+
+<body>
+    <div id="headerDiv" class="header">
+        <div class="macaque" id="headerLogo">
+            <img id="headerLogoImage">
+        </div>
+        <header class="header">
+            <h1>O' Macaco</h1>
+            <p>Trepa Macaco!</p>
+        </header>
+        <div class="headerRightDeco" id="headerRightDeco">
+            <img id="headerRightDecoImage" height="150">
+        </div>
+    </div>
+
+    <div class="navbar" id="navigationBar">
+        <a href="javascript:void(0);" class="icon" onclick="navToggle()">
+            <i class="fa fa-bars"></i>
+        </a>
+        <div class="upperNav">
+            <div id="filterMenu">
+                <div id="feeFilter">
+                    <label id="feeLabel"><span id="feeRangeDisplay"></span></label>
+                    <div id="rangeSliders"></div>
+                </div>
+                <svg id="spinner" width="100" height="100" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <circle class="spinner_98HH" cx="12" cy="12" r="0" />
+                    <circle class="spinner_98HH spinner_roCJ" cx="12" cy="12" r="0" />
+                    <circle class="spinner_98HH spinner_q4Oo" cx="12" cy="12" r="0" />
+                </svg>
+                <div id="locationFilter"></div>
+            </div>
+        </div>
+        <div class="lowerNav">
+            <div id="leftNavbarDeco">
+                <img id="leftNavbarDecoImage" height="320"></img>
+            </div>
+            <div id="macaques"></div>
+            <div id="rightNavbarDeco">
+                <img id="rightNavbarDecoImage" height="320"></img>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="flex-container" id="informationBlocks"></div>
+    </div>
+</body>
+
+</html>

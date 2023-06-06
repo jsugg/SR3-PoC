@@ -1,0 +1,685 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.3em;
+    background: black;
+    color: #333;
+}
+
+a {
+    color: #007bff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    margin: 0;
+}
+
+p {
+    margin: 3;
+}
+
+.container {
+    margin: 0 auto;
+    padding: 0 15px;
+}
+
+#headerDiv {
+    background-color: #FF4500;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 5px solid #FFD700;
+}
+
+.header {
+    color: #fff;
+    text-align: center;
+}
+
+.header h1 {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.header h1 {
+    font-size: 2.8em;
+}
+
+.header p {
+    font-size: 1.5em;
+    margin: 0px;
+}
+
+.macaque {
+    display: flex;
+}
+
+.macaque img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    max-width: 100%;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #000000;
+}
+
+#headerRightDeco {
+    display: flex;
+    top: 0;
+    right: 0;
+    max-width: 50%;
+}
+
+.spinner_98HH {
+    animation: spinner_mnRT 1.6s cubic-bezier(0.52, .6, .25, .99) infinite
+}
+
+.spinner_roCJ {
+    animation-delay: .2s
+}
+
+.spinner_q4Oo {
+    animation-delay: .4s
+}
+
+@keyframes spinner_mnRT {
+    0% {
+        r: 0;
+        opacity: 1
+    }
+
+    75%,
+    100% {
+        r: 11px;
+        opacity: 0
+    }
+}
+
+.informationBlock {
+    /*    width: 100%; */
+    height: auto;
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    align-self: self-start;
+    margin-bottom: 60px;
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    background-color: #1f4b22;
+    border-radius: 25px;
+    border: 2px solid #FFD700;
+    margin-top: 15px;
+    z-index: 2;
+}
+
+.flex-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    bottom: 0px;
+    position: relative;
+}
+
+.mainPhoto {
+    width: 100%;
+    text-align: center;
+    top: 0;
+}
+
+.mainPhoto img {
+    width: 100%;
+    height: auto;
+    top: 0;
+}
+
+.details {
+    padding: 20px;
+    background-color: #161614;
+    color: white;
+    overflow-y: scroll;
+    box-sizing: border-box;
+    margin-top: -15px;
+    margin-bottom: -15px;
+    margin-left: 10px;
+    margin-right: 10px;
+    min-height: 200px;
+    position: relative;
+    box-shadow: 0 0 10px grey;
+    border-radius: 10px;
+    border: 2px solid #587d4c;
+    text-align: center;
+    z-index: 3;
+}
+
+.details h2 {
+    margin-bottom: 5px;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+    display: none;
+}
+
+.swiper-container {
+    width: 100%;
+    position: relative;
+    align-items: center;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    background-color: #1f4b22;
+    bottom: 0;
+}
+
+.swiper-wrapper {
+    position: relative;
+    bottom: 0;
+}
+
+.swiper-container-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    height: auto;
+    width: 100%;
+    bottom: 0;
+}
+
+.swiper-slide {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    bottom: 0;
+}
+
+.filterButton {
+    padding: 10px;
+    background: #362211;
+    color: #FFFFFF;
+    border: 0;
+    border-radius: 5px;
+    margin: 10px;
+    font-size: 1.2em;
+    cursor: pointer;
+}
+
+.filterButton:focus {
+    outline: 0;
+}
+
+.filterButton.active {
+    background: #FF4500;
+}
+
+.navbar.responsive #feeFilter {
+    display: flex;
+    width: 80%;
+    margin: 20px auto;
+    margin-top: 40px;
+    border-radius: 5px;
+    z-index: 0;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    font-size: 1.4em;
+}
+
+#rangeSliders {
+    position: relative;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+.noUi-horizontal {
+    width: 70vw;
+}
+
+#rangeSliders input[type="range"] {
+    position: absolute;
+    width: 100%;
+}
+
+#locationFilter {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    flex-direction: row;
+}
+
+.hamburger {
+    display: none;
+    cursor: pointer;
+    float: right;
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #1f4b22;
+    padding-top: 15px;
+}
+
+.navbar a {
+    color: white;
+    text-decoration: none;
+    padding: 8px 16px;
+}
+
+.navbar a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.navbar .icon {
+    display: none;
+}
+
+.navbar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.upperNav {
+    width: 100%;
+    display: grid;
+    flex-direction: row;
+    align-items: center;
+}
+
+.lowerNav {
+    width: 100%;
+    display: flex;
+    flex-direction: row;   
+    justify-content: space-between;
+    border-top: 2px solid #FFD700;
+    border-bottom: 2px solid #FFD700;
+    margin-top: 10px;
+    background-color: #122223;
+}
+
+#filterMenu {
+    grid-column: 1 / -1;
+}
+
+#feeFilter {
+    align-items: center;
+    color: white;
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+}
+
+#feeRangeDisplay,
+#feeLabel {
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+    position: relative;
+    font-size: 1.2em;
+}
+
+#macaques {
+    display: none;
+}
+
+/* Responsive styles for mobile */
+@media screen and (min-width: 360px) and (max-width: 600px) {
+    .hamburger {
+        display: block;
+        padding: 10px;
+    }
+
+    #headerDiv {
+        justify-content: space-around;
+    }
+
+    .macaque {
+        display: block;
+    }   
+
+    .macaque img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        max-width: 100%;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #000000;
+    }
+
+    #headerRightDeco {
+        display: none;
+    }
+
+    .navbar #filterMenu {
+        display: none;
+    }
+
+    .details {
+        position: relative;
+        width: 100%;
+    }
+
+    .navbar {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .navbar a:not(:first-child) {
+        display: none;
+    }
+
+    .navbar a.icon {
+        display: block;
+        background-color: #1f4b22;
+    }
+
+    .navbar.responsive {
+        position: relative;
+        z-index: 2;
+        margin-left: 5px;
+        margin-right: 5px;
+        border-bottom: 1px solid #FFD700;
+        border-left: 1px solid #FFD700;
+        border-right: 1px solid #FFD700;
+        border-radius: 5% 5px / 5% 0px;
+        background-color: #1f4b22;
+    }
+
+    .navbar.responsive a.icon {
+        position: absolute;
+        right: 0;
+        top: 0;
+    }
+
+    .navbar.responsive a {
+        display: block;
+        text-align: right;
+    }
+
+    .navbar.responsive #filterMenu {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        padding-left: 5px;
+        padding-right: 5px;
+        width: 96vw;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .navbar.responsive #locationFilter {
+        display: flex;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+        flex-direction: column;
+        align-items: stretch;
+        padding-bottom: 15px;
+    }
+
+    .navbar #leftNavbarDeco,
+    .navbar #rightNavbarDeco {
+        display: none;
+        flex-direction: column;
+    }
+
+    .informationBlock {
+        width: calc((100% - 4%));
+        text-align: center;
+    }
+
+    #feeFilter {
+        align-items: center;
+        color: white;
+        display: grid;
+        justify-content: center;
+        justify-items: center;
+        flex-direction: column
+    }
+    
+    #feeRangeDisplay,
+    #feeLabel {
+        align-items: center;
+        justify-content: center;
+        justify-items: center;
+        position: relative;
+        font-size: 1.1em;
+        margin-bottom: 5px;
+    }
+}
+
+/* For tablets and larger screens */
+@media screen and (min-width: 601px) and (max-width: 767px) {
+    #headerLogo {
+        display: block;
+    }
+
+    #headerDiv {
+        justify-content: space-around
+    }
+
+    #headerRightDeco {
+        display: none;
+    }
+
+    .macaque {
+        display: block;
+    }
+
+    .macaque img {
+        position: absolute;
+    }
+
+    .hamburger {
+        display: block;
+        padding: 10px;
+    }
+
+    .informationBlock {
+        width: calc((100% - 4%)/2);
+        text-align: center;
+    }
+
+    .navbar #leftNavbarDeco,
+    .navbar #rightNavbarDeco {
+        display: none;
+        flex-direction: row;
+    }
+
+    .navbar {
+        flex-direction: column
+    }
+
+    .header #filterMenu {
+        display: none;
+    }
+
+    .navbar.open .filterMenu {
+        display: flex;
+    }
+
+    .navbar.responsive #locationFilter {
+        width: fit-content;
+        display: flex;
+        justify-content: space-evenly;
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .navbar.responsive #filterMenu {
+        padding-top: 25px;
+        padding-bottom: 15px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .upperNav {
+        width: 100%;
+        display: grid;
+        flex-direction: row;
+    }
+    
+    #filterMenu {
+        grid-column: 1 / -1;
+    }
+    
+    #feeFilter {
+        align-items: center;
+        color: white;
+    }
+
+    #locationFilter {
+        display: block;
+    }
+
+    #spinner {
+        position: relative;
+        top: 60%;
+        left: 50%;
+        margin-top: -60px;
+        margin-left: -50px;
+        z-index: 1;
+    }
+}
+
+/* For small screen desktops and large screens devices */
+@media screen and (min-width: 768px) and (max-width: 1383px) {
+
+    .header #headerLogo {
+        display: block;
+    }
+
+    .macaque {
+        text-align: center;
+    }
+
+    .macaque img {
+        max-width: 100%;
+        position: relative;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #000000;
+    }
+
+    .navbar {
+        flex-direction: column
+    }
+
+    .informationBlock {
+        width: calc((100% - 7%)/3);
+        text-align: center;
+    }
+
+    .navbar #leftNavbarDeco,
+    .navbar #rightNavbarDeco {
+        display: none;
+        flex-direction: column;
+    }
+
+    #locationFilter {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    #spinner {
+        position: relative;
+        top: 60%;
+        left: 50%;
+        margin-top: -60px;
+        margin-left: -50px;
+        z-index: 1;
+    }
+}
+
+/* For large screens */
+@media screen and (min-width: 1384px) {
+    .informationBlock {
+        width: calc((100% - 8%)/4);
+        text-align: center;
+    }
+
+    .header #headerLogo {
+        display: block;
+    }
+
+    .navbar {
+        flex-direction: flex;
+        align-items: stretch;
+    }
+
+    .navbar #leftNavbarDeco,
+    .navbar #rightNavbarDeco {
+        display: flex;
+        flex-direction: row;
+        bottom: 0px;
+        align-items: flex-end;
+    }
+
+    .navbar {
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: stretch;
+    }
+
+    #locationFilter {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        flex-wrap: wrap;
+        align-items: stretch;
+    }
+
+    .macaque {
+        text-align: center;
+    }
+
+    .macaque img {
+        max-width: 100%;
+        border-radius: 50%;
+        box-shadow: 0 0 10px #000000;
+    }
+
+    #macaques {
+        display: inline-block;
+        background-size: cover;
+        background-repeat: no-repeat;
+        background-position: bottom center;
+        width: 100%;
+        position: relative;
+        border-top-left-radius: 70px;
+        border-top-right-radius: 70px;
+        margin-right: 30px;
+      }
+
+    #spinner {
+        position: relative;
+        top: 60%;
+        left: 50%;
+        margin-top: -60px;
+        margin-left: -50px;
+        z-index: 1;
+    }
+}
