@@ -8,7 +8,7 @@
     "build": "npm i",
     "dev": "NODE_ENV=DEV && node --trace-warnings src/server.js | pino-pretty",
     "scrape": "node --trace-warnings src/utils/scraper/index.js | pino-pretty",
-    "prod": "NODE_ENV=PROD && node --trace-warnings src/server.js"
+    "prod": "[ ! -d 'logs' ] && mkdir logs && NODE_ENV=PROD && node --trace-warnings src/server.js"
   },
   "keywords": [],
   "author": "Juan Sugg",
