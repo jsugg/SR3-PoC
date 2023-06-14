@@ -1,4 +1,5 @@
-require('dotenv').config();
+const appRoot = require('app-root-path').path;
+require('dotenv').config({ path: `${appRoot}/.env` });
 
 const setup = JSON.parse(process.env.TARGET_SETUP);
 
@@ -11,5 +12,6 @@ exports.TARGET_SETUP = {
     },
     "timeImageName": "time.png",
     "servicesImageName": "services.png",
-    "feeLineText": setup.feeLineText
+    "feeLineText": setup.feeLineText,
+    "wspMessage": setup.wspMessage,
 }

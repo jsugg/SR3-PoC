@@ -1,28 +1,32 @@
 const express = require('express');
+const https = require('https');
+const http2 = require('http2'); // used by https library
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const appRoot = require('app-root-path').path;
 const { logger, httpLogger } = require(`${appRoot}/src/utils/logger`);
 const { SETTINGS } = require(`${appRoot}/config/settings`);
 const apiRoutes = require('./api');
-const {
-  getSpreadsheetData,
-  getSpreadsheetWebAssets,
-  removeBrokenPhotoLinks
-} = require(`${appRoot}/src/web/spreadsheetHandler`);
-
-const scraper = require(`${appRoot}/src/utils/scraper`);
+const { getSpreadsheetData,
+        getSpreadsheetWebAssets,
+        removeBrokenPhotoLinks } = require(`${appRoot}/src/web/spreadsheetHandler`);
+const scraper = require(`${appRoot}/src/utils/scraper/scraper`);
 const CronJob = require('cron').CronJob;
+const fs = require('fs');
 
 const app = express();
-const port = process.env.PORT || 3000;
+const SERVER = SETTINGS.httpServer;
+const PORT = SETTINGS.httpServerPort || 8080;
+const PROTOCOL = SETTINGS.serverProtocol;
 const corsOptions = {
-  origin: SETTINGS.httpServerUrl,
+  origin: `${PROTOCOL}://${SERVER}/`,
   optionsSuccessStatus: 200
 }
+
 app.use(httpLogger);
 app.use(cors(corsOptions));
 app.use(bodyParser.json());
+
 
 // A few simple routes
 app.get('/data', async (req, res) => {
@@ -46,24 +50,26 @@ app.get('/assets', async (req, res) => {
 app.use('/api', apiRoutes);
 
 app.use('/', function (req, res, next) {
-  let referer = req.headers.referer;
-  if (referer && referer.indexOf(SETTINGS.httpServerUrl) !== 0) {
-    res.sendStatus(403);
-  } else {
     next();
-  }
 }, express.static(`${appRoot}/public`));
 
-app.listen(port, () => {
-  logger.info(`Server is running on ${process.env.httpServerUrl}:${port}`);
+const server = https.createServer({
+  key: fs.readFileSync(`${appRoot}/dev.key`),
+  cert: fs.readFileSync(`${appRoot}/dev.cert`)
+}, app);
+
+server.listen(PORT, () => {
+  logger.info(`Server is running on ${PROTOCOL}://${SERVER}:${PORT}`);
+  logger.info('TLS Enabled');
 });
 
-let scraperJob = new CronJob('00 30 19 * * *', function () {
+
+let scraperJob1930 = new CronJob('00 30 19 * * *', function () {
   console.log('Running a task at 19:30 every day in timezone GMT-4');
   scraper({ update: true, sheetName: '[PROD] main' });
 }, null, true, 'America/New_York');
 
-let RemoveBrokenPhotoLinksJob = new CronJob('00 35 19 * * *', function () {
+let RemoveBrokenPhotoLinksJob1935 = new CronJob('00 35 19 * * *', function () {
   console.log('Running a task at 19:35 every day in timezone GMT-4');
   removeBrokenPhotoLinks("[PROD] main");
 }, null, true, 'America/New_York');
@@ -73,6 +79,6 @@ let RemoveBrokenPhotoLinksJob730 = new CronJob('00 30 07 * * *', function () {
   removeBrokenPhotoLinks("[PROD] main");
 }, null, true, 'America/New_York');
 
-scraperJob.start();
-RemoveBrokenPhotoLinksJob.start();
+scraperJob1930.start();
+RemoveBrokenPhotoLinksJob1935.start();
 RemoveBrokenPhotoLinksJob730.start();

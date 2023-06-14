@@ -278,8 +278,7 @@ async function getImageAsBase64(imageUrl) {
 }
 
 async function getSpreadsheetData(sheetName = "[prod] main") {
-    let authClient;
-    await authenticate().then((auth) => { logger.info('Authenticated successfully'); authClient = auth }).catch(err => logger.error(err));
+    const authClient = async function () { await authenticate().then((auth) => { logger.info('Authenticated successfully'); authClient = auth }).catch(err => logger.error(err)); }
     google.options({ auth: authClient });
     const sheets = google.sheets({ version: 'v4', auth: authClient });
 
