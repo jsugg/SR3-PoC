@@ -363,7 +363,6 @@ async function renderContents() {
         });
         $("#locationFilter").append(locationButton);
     });
-
 }
 
 loadScript('js/swiper-bundle.min.js', 'async');
@@ -396,4 +395,3 @@ $(() => {
             console.error('Failed to load data:', error);
         });
     });
-});
