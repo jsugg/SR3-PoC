@@ -3,14 +3,23 @@ const { SETTINGS } = require(`${appRoot}/config/settings`);
 const { google } = require('googleapis');
 const axios = require('axios');
 const { logger } = require(`${appRoot}/src/utils/logger`);
+const { cacheFileToGoogleDrive, cachedFilesLookup, getSpreadsheetData, getCachedFileUrl } = require(`${appRoot}/src/utils/google-resources`);
+
+function delay(time) {
+    return new Promise(function (resolve) {
+        setTimeout(resolve, time);
+    });
+}
 
 async function authenticate() {
     // Authenticate using service account credentials
     const key = SETTINGS.keyFilePath;
+    _scopes = SETTINGS.projectScopes.split(',');
+
     const auth = new google.auth.JWT({
         email: key.client_email,
         key: key.private_key,
-        scopes: [SETTINGS.projectScopes],
+        scopes: _scopes,
     });
 
     try {
@@ -277,47 +286,73 @@ async function getImageAsBase64(imageUrl) {
     }
 }
 
-async function getSpreadsheetData(sheetName = "[prod] main") {
-    const authClient = async function () { await authenticate().then((auth) => { logger.info('Authenticated successfully'); authClient = auth }).catch(err => logger.error(err)); }
-    google.options({ auth: authClient });
-    const sheets = google.sheets({ version: 'v4', auth: authClient });
-
+async function getAndCacheImageAsBase64(imageUrl) {
     try {
-        const tableData = await sheets.spreadsheets.values.get({
-            spreadsheetId: SETTINGS.spreadsheetId,
-            range: `${sheetName}!A:G`,
-        }).catch(error => logger.error(`Error fetching spreadsheet data: ${error}`));
-        let values = tableData.data.values;
-        let headerRow = values[0];
-        let dataRows = values.slice(1);
-        let data = await Promise.all(dataRows.map(async function (row) {
-            let photos = row[headerRow.indexOf("Photos")].split(" ");
-            photos = await Promise.all(photos.map(
-                async (photo) => {
-                    if (photo.length !== 0) {
-                        return await getImageAsBase64(photo);
-                    }
-                    return null;
-                })).then((results) => results.filter((photo) => photo !== null))
-                .catch(error => logger.error(`Error fetching photo: ${error}`));
-            return [
-                row[headerRow.indexOf("Fee")],
-                row[headerRow.indexOf("Location")],
-                row[headerRow.indexOf("Phone")],
-                row[headerRow.indexOf("Name")],
-                row[headerRow.indexOf("Description")],
-                photos,
-                row[headerRow.indexOf("Link")]
-            ];  
-        })).then(logger.info("Done fetching spreadsheet values"))
-            .catch(error => logger.error(`Error fetching spreadsheet values: ${error}`));
-        return {
-            headerRow: headerRow,
-            values: data
+        const response = await fetchResource(imageUrl);
+        if (!response) return null;
+
+        const contentType = response.headers['content-type'];
+        if (!/^image\/.*$/.test(contentType)) {
+            throw TypeError(`Invalid content type: ${contentType}`);
         }
+
+        const buffer = response.data;
+        const base64data = buffer.toString('base64');
+
+        // returns the id of the file in the google drive
+        return await cacheFileToGoogleDrive(imageUrl, base64data, contentType);
+        //return `data:${contentType};base64,${base64data}`;
+
     } catch (error) {
-        console.error(`Some error getting spreadsheet data: ${error}`);
+        logger.error(`Failed to fetch file: ${error.message}`);
+        return null;
     }
+}
+
+async function getProdData() {
+    const siteData = await getSpreadsheetData("[prod] main", "A:G");
+    let cachedSiteData = {
+        headerRow: siteData.headerRow,
+        values: []
+    }
+
+    if (!siteData) {
+        logger.error("No data found in spreadsheet");
+        return null;
+    }
+
+    headerRow = siteData.headerRow;
+    values = siteData.values;
+    for (let row of values) {
+        row[headerRow.indexOf("Photos")] = await Promise.all(row[headerRow.indexOf("Photos")].split(" ").map(async (photo) => {
+            if (photo.length !== 0) {
+                return await new Promise(async (resolve, reject) => {
+                    let record = await cachedFilesLookup(photo);
+
+                    if (record) {
+                        logger.info(`Found cached file: ${photo}. Cache ID: ${record}`);
+                        resolve(getCachedFileUrl(record));
+                    }
+                    else {
+                            await cacheFileToGoogleDrive(photo).then(cacheId => {
+                                if (cacheId) {
+                                    logger.info(`Cached file: ${photo}. Cache ID: ${cacheId}`);
+                                    return getCachedFileUrl(cacheId);
+                                }
+                                else {
+                                    logger.error(`Failed to cache file: ${photo}`);
+                                    return null;
+                                }
+                            }).catch(error => { logger.error(`Error caching file: ${error}`); return null });
+                    }
+                }).filter(photo => photo !== null);
+            }
+            row[headerRow.indexOf("Photos")] = await row[headerRow.indexOf("Photos")];
+
+            cachedSiteData.values.push(row);
+        }));
+    }
+    return cachedSiteData;
 }
 
 async function getSpreadsheetWebAssets(sheetName = "[WEB] Assets") {
@@ -357,10 +392,11 @@ async function getSpreadsheetWebAssets(sheetName = "[WEB] Assets") {
 }
 
 module.exports = {
-    getSpreadsheetData,
+    getProdData,
     updateProductionSpreadsheet,
     updateMainSpreadsheet,
     removeBrokenPhotoLinks,
     getImages,
-    getSpreadsheetWebAssets
+    getSpreadsheetWebAssets,
+    getAndCacheImageAsBase64
 };

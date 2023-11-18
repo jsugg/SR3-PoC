@@ -138,3 +138,5 @@ dist
 *.cert
 *.key
 *.pem
+
+.vscode/

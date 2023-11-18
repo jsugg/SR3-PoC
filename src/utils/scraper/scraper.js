@@ -6,7 +6,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const fs = require('fs');
 const randomUseragent = require('random-useragent');
-const { setSpreadsheetData } = require(`${appRoot}/src/utils/google-resources`);
+const { setSpreadsheetData, cachedFilesLookup, cacheFileToGoogleDrive } = require(`${appRoot}/src/utils/google-resources`);
 
 let collection = [];
 let toBeRemoved = [];
@@ -121,7 +121,7 @@ async function harvestLinks() {
         return collection.length;
     }
     catch (err) {
-        logger.error(`Error ${err} on ${TARGET_SETUP.home}`);
+        logger.error(`Error ${err} on ${TARGET_SETUP.home}`);``
     }
 }
 
@@ -136,7 +136,52 @@ function extractNumbers(text) {
     const formattedNumbers = uniqueMatches.map(match => match.replace(/\s/g, ''));
     const joinedNumbers = formattedNumbers.join(' / ');
     return joinedNumbers;
-  }
+}
+
+async function fetchResource(url, options = { responseType: 'arraybuffer' }) {
+    const { responseType } = options;
+    if (!(responseType === 'arraybuffer' || responseType === 'json')) {
+        logger.error(`Invalid response type: ${responseType}`);
+        return null;
+    }
+
+    try {
+        const response = await axios.get(url, { responseType: 'arraybuffer' });
+        // Check if the status code was successful
+        if ((response.status / 100 | 0) !== 2) {
+            //throw Error(`Request returned ${response.statusText}: ${response.data}`);
+            logger.error(`Request returned ${response.statusText}: ${response.data}`);
+        }
+        return response;
+    } catch (error) {
+        //throw new Error(`Failed to fetch file: ${error.message}`);
+        logger.error(`Failed to fetch file: ${error.message}`);
+        return null;
+    }
+}
+  
+async function getAndCacheImageAsBase64(imageUrl) {
+    try {
+        const response = await fetchResource(imageUrl);
+        if (!response) return null;
+
+        const contentType = response.headers['content-type'];
+        if (!/^image\/.*$/.test(contentType)) {
+            throw TypeError(`Invalid content type: ${contentType}`);
+        }
+
+        const buffer = response.data;
+        const base64data = buffer.toString('base64');
+
+        // returns the id of the file in the google drive
+        return await cacheFileToGoogleDrive(imageUrl, base64data, contentType);
+        //return `data:${contentType};base64,${base64data}`;
+
+    } catch (error) {
+        logger.error(`Failed to fetch file: ${error.message}`);
+        return null;
+    }
+}
 
 async function harvestContents() {
     let i = 1;
@@ -146,7 +191,7 @@ async function harvestContents() {
 
             html = response.data;
             const $ = cheerio.load(html);
-            //await delay(1000);
+            await delay(2000);
             const img = $(TARGET_SETUP.selectors.imgSelector);
             const description = $(TARGET_SETUP.selectors.jobDescriptionSelector);
 
@@ -156,6 +201,22 @@ async function harvestContents() {
             });
 
             photos = [...new Set(photos)];
+            for (const photo of photos)
+            {
+                let record = await cachedFilesLookup(photo);
+                if (!record) {
+                    await getAndCacheImageAsBase64(photo).then( async (response) => { 
+                        //record = await cachedFilesLookup(photo);
+                        if (response) {
+                            logger.info(`Cached ${photo} as ${response}`);
+                        }
+                        else {
+                            logger.error(`Error caching ${photo}`);
+                        }
+                    });
+                }
+                await delay(2000);
+            }
             collection[index].photos = photos.join(' ');
 
             description.each((i, element) => {
@@ -224,7 +285,11 @@ async function updateContentSheet(sheetName) {
 }
 
 async function main({ update = true, sheetName = '[PROD] main' } = {}) {
-    await harvestLinks();
+    const links = await harvestLinks();
+    if (!links) {
+        logger.error('No links found');
+        return;
+    }
     await harvestContents();
     removeFailedLinks();
     if (update) {

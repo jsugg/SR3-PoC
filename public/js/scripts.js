@@ -48,8 +48,6 @@ document.addEventListener('DOMContentLoaded', function () {
     document.getElementById("navigationBar").onclick = function () {
         document.dispatchEvent(new Event('responsiveNavbarNeeded'));
     }
-
-
 });
 
 // Load a script asynchronously
@@ -184,7 +182,7 @@ async function renderContents() {
         details.append("<p>" + row[1] + "</p>"); //row.location
         details.append("<p>" + createPhoneLink(row[2]) + "</p>"); //row.phone
         details.append("<p>" + newLinesToHTMLParagraphs(row[4]).replace(/\n/g, "<br>") + "</p>"); //row.description
-        let phones = row[2].split(', '); // Whatsapp
+        let phones = row[2].split(','); // Whatsapp
         phones.forEach(function (phone) {
             phone = phone.trim(); // Fix: assign the result of phone.trim() to phone
             details.append("<a style='text-decoration: none' href='https://api.whatsapp.com/send?phone=" + phone.replace(/\s/g, "")
@@ -209,8 +207,16 @@ async function renderContents() {
             .attr("id", `${swiperId}-prev`);
 
         if (row[imagesColumnIndex] && Array.isArray(row[imagesColumnIndex])) {
-            row[imagesColumnIndex].forEach(function (photo) {
+            row[imagesColumnIndex].forEach( async function (photo) {
                 if (photo) {
+                    photo = fetch(photo).then(response => {
+                        if (response.status === 200) {
+                            return response.blob();
+                        } else {
+                            console.log("Error fetching photo from URL: " + photo + ". " + response.status);
+                            return false;
+                        }
+                     })
                     let carouselItem = $("<div>").addClass("swiper-slide");
                     carouselItem.append("<img src='" + photo + "' style='width: 100%; height: auto; bottom: 0;' alt='Carousel Photo'>");
 

@@ -1,6 +1,11 @@
-const { setSpreadsheetData, getSpreadsheetData } = require('./google-resources');
+const { setSpreadsheetData, getSpreadsheetData, cacheFileToGoogleDrive,
+    getCachedFileFromGoogleDrive, cachedFilesLookup, getCachedFileUrl } = require('./google-resources');
 
 module.exports = {
     setSpreadsheetData,
-    getSpreadsheetData
+    getSpreadsheetData,
+    cachedFilesLookup,
+    cacheFileToGoogleDrive,
+    getCachedFileFromGoogleDrive,
+    getCachedFileUrl
 }
