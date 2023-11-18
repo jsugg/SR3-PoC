@@ -133,3 +133,12 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# Certs
+*.cert
+*.key
+*.pem
+
+.vscode/
+
+.DS_Store

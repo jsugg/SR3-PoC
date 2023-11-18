@@ -1,8 +1,62 @@
-const dataEndpoint = "https://omacaco.onrender.com";
+const dataEndpoint = "__DATA_ENDPOINT__";
+const wspMessage = "__TARGET_WSP_MSG__";
+
+var assets = false
+var data = false
+
+
+async function retryWithExponentialBackoff(url, maxRetries, initialDelay) {
+    let retries = 0;
+    let retryDelay = initialDelay;
+  
+    while (retries < maxRetries) {
+      try {
+        const response = await fetch(url, { mode: 'no-cors' });
+  
+        if (response.ok) {
+          // If the request is successful, return the response
+          return await response.json();
+        } else {
+          console.error(`Request failed. Retrying attempt ${retries + 1}`);
+        }
+      } catch (error) {
+        console.error(`Request failed. Retrying attempt ${retries + 1}: ${error.message}`);
+      }
+  
+      // Exponentially increase the retry delay
+      retryDelay *= 2;
+      await new Promise((resolve) => setTimeout(resolve, retryDelay));
+      retries++;
+    }
+  
+    throw new Error('Request failed after multiple retries.');
+}
+
+// Load a script asynchronously
+function loadScript(url, attribute = 'defer') {
+    return new Promise(function (resolve, reject) {
+        const script = document.createElement('script');
+        script.src = url;
+        if (attribute === 'defer') script.async = false;
+        if (attribute === 'async') script.async = true;
+
+        script.addEventListener('load', function () {
+            resolve();
+        });
+
+        script.addEventListener('error', function () {
+            reject(new Error('Failed to load script: ' + url));
+        });
+
+        document.head.appendChild(script);
+    });
+}
 
 async function fetchData(url) {
     try {
+        console.log(`About to fetch data from ${url}`);
         const response = await fetch(url);
+        console.log(`Response status: ${response.status}`);
         if (!response.ok) {
             throw new Error(`Request failed with status ${response.status}`);
         }
@@ -13,6 +67,39 @@ async function fetchData(url) {
         throw error;
     }
 }
+
+function fetchData2(url) {
+    return $.ajax({
+        url: url,
+        dataType: 'json'
+    });
+}
+
+
+function navToggle() {
+    const hamburguerMenu = document.querySelector('a.icon');
+    const navigationBar = document.getElementById("navigationBar");
+
+    if (hamburguerMenu && hamburguerMenu.style.display !== 'none') {
+        if (navigationBar.className === "navbar") {
+            navigationBar.className += " responsive";
+        } else {
+            navigationBar.className = "navbar";
+            //filterMenu.style.display = "block"
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Add event listener to the hamburguer menu
+    document.addEventListener('responsiveNavbarNeeded', function () {
+        navToggle();
+    });
+    document.getElementById("hamburger").onclick = function () {
+        document.dispatchEvent(new Event('responsiveNavbarNeeded'));
+    }
+});
 
 function currency(amount) {
     const formatter = new Intl.NumberFormat('es-CL', {
@@ -41,19 +128,6 @@ function createPhoneLink(phoneNumber) {
 
 const linkIcon = '🔗';
 
-function navToggle() {
-    let x = document.getElementById("navigationBar");
-    //let filterMenu = document.getElementById("filterMenu");
-
-    if (x.className === "navbar") {
-        x.className += " responsive";
-        //filterMenu.style.display = "none"
-    } else {
-        x.className = "navbar";
-        //filterMenu.style.display = "block"
-    }
-}
-
 // Initialize Swiper instances
 function initializeSwiper(swiperId) {
     const swiper = new Swiper("#" + swiperId, {
@@ -79,77 +153,79 @@ function initializeSwiper(swiperId) {
             minRation: 1
         },
     });
+    console.log(`Initialized swiper ${swiperId}`);
 }
 
-// Render the Data
-document.addEventListener('DOMContentLoaded', async function () {
+async function renderAssets() {
+    let bundle = assets;
+    let assetsValues = bundle.values;
 
-    const assets = await fetchData(`${dataEndpoint}/assets`)
-    .then((dataSet) => { console.log('Assets fetched');  return dataSet})
-        .catch(error => { console.error(error) });
-    
-    assetsHeaders = assets.headerRow;
-    assetsValues = assets.values;
-
-    assetsValues.forEach(function (assetValue) {
+    for (const [index, entry] of assetsValues.entries()) {
         try {
-            const asset = document.getElementById(assetValue[assetsHeaders.indexOf('Id')]);
-            
-            if (assetValue[assetsHeaders.indexOf('Id')] === 'macaques') {
-                asset.style.backgroundImage = `url("${assetValue[assetsHeaders.indexOf('Image')]}")`;
-            } else { asset.setAttribute('src', assetValue[assetsHeaders.indexOf('Image')]); }
+            const asset = document.getElementById(entry[0]);
+
+            if (entry[0] === 'macaques') {
+                asset.style.backgroundImage = `url("${entry[1]}")`;
+            } else { asset.setAttribute('src', entry[1]); }
 
         } catch (error) {
-            console.error(`Error unpacking asset ${error}`);
+            console.error(`Error unpacking assets bundle: ${error}`);
         }
-    });
+    }
+}
 
-    const data = await fetchData(`${dataEndpoint}/data`)
-        .then((dataSet) => { console.log('Data fetched');  return dataSet})
-        .catch(error => { console.error(error) });
-    
-    let locations = [];
-    let filteredLocations = [];
+
+
+async function renderContents() {
+    let bundle = data;
+
     let filteredFee = [0, Infinity];
     let minFee = Infinity;
     let maxFee = 0;
+    const headerEntry = bundle.headerRow[1];
+    const values = bundle.values;
+    //let values = valuesEntries.map(entry => entry[1]);
 
-    function filterBlocks() {
-        let minFee = filteredFee[0];
-        let maxFee = filteredFee[1];
+    const imagesColumnIndex = 5;
+    let locations = [...new Set(values.map(row => row[1]))];
+    let filteredLocations = [...locations];
 
-        $(".informationBlock").hide().filter(function () {
-            let fee = parseFloat($(this).data("fee"));
-            return fee >= minFee && fee <= maxFee && filteredLocations.includes($(this).data("location"));
-        }).show();
-    }
+    function filterBlocks(feeFilter = null, locationFilter = null) {
+        const minFee = feeFilter ? feeFilter[0] : null;
+        const maxFee = feeFilter ? feeFilter[1] : null;
     
-    const header = data.headerRow;
-    const values = data.values;
-    const imagesColumnIndex = header.indexOf("Photos");
-
-    // Extract unique locations and fee range
-    locations = [...new Set(values.map(row => row[1]))];
-
-    filteredLocations = locations.slice();
-    filterBlocks();
+        $(".informationBlock").each(function () {
+            const fee = parseFloat($(this).data("fee"));
+            const location = $(this).data("location");
+            
+            const shouldShow =
+                (!locationFilter || filteredLocations.includes(location)) &&
+                (!feeFilter || (fee >= minFee && fee <= maxFee));
+    
+            $(this).toggle(shouldShow);
+        });
+    }
 
     $("#informationBlocks").addClass('flex-container');
 
-    values.forEach(function (row, index) {
+    for (const [index, row] of values.entries()) {
+        //console.log(`Row ${index}: row: ${row}`);
         let informationBlock = $("<div>").addClass("informationBlock flex-item block");
         informationBlock.addClass(row[1]); //row.location
+        informationBlock.attr('data-fee', parseFloat(row[0].replace(/[^0-9.-]+/g, '')) * 1000);
+        informationBlock.attr('data-location', row[1]);
 
         let details = $("<div>").addClass("details");
         details.append("<h2>" + row[3] + "</h2>"); //row.name
-        details.append("<h3>" + currency(parseFloat(row[0].replace(/[^0-9.-]+/g, ""))*1000) + "</h3>"); //row.fee
+        details.append("<h3>" + currency(parseFloat(row[0].replace(/[^0-9.-]+/g, '')) * 1000) + "</h3>"); //row.fee
         details.append("<p>" + row[1] + "</p>"); //row.location
         details.append("<p>" + createPhoneLink(row[2]) + "</p>"); //row.phone
         details.append("<p>" + newLinesToHTMLParagraphs(row[4]).replace(/\n/g, "<br>") + "</p>"); //row.description
-        let phones = row[2].split(', '); // Whatsapp
+        let phones = row[2].split(','); // Whatsapp
         phones.forEach(function (phone) {
             phone = phone.trim(); // Fix: assign the result of phone.trim() to phone
-            details.append("<a style='text-decoration: none' href='https://api.whatsapp.com/send?phone=" + phone.replace(/\s/g, "") + "&text=Hola!%20Te%20llamo%20por%20el%20aviso%20de%20OMacaco%20Sitio%20Partner%20de%20La%20Estokada'><img src='https://cdn-icons-png.flaticon.com/64/3025/3025546.png' alt='Whatsapp' title='Whatsapp' target='_blank' width='70' height='70'/></a>");
+            details.append("<a style='text-decoration: none' href='https://api.whatsapp.com/send?phone=" + phone.replace(/\s/g, "")
+                + `&text=${wspMessage}'><img src='https://cdn-icons-png.flaticon.com/64/3025/3025546.png' alt='Whatsapp' title='Whatsapp' target='_blank' width='70' height='70'/></a>`);
         });
         details.append(`<p><a style='text-decoration: none;' href='${row[6]}' target="_blank">${linkIcon}</a></p>`); // row.link
 
@@ -169,15 +245,33 @@ document.addEventListener('DOMContentLoaded', async function () {
             .addClass("swiper-button-prev")
             .attr("id", `${swiperId}-prev`);
 
-        if (row[imagesColumnIndex] && Array.isArray(row[imagesColumnIndex])) {
-            row[imagesColumnIndex].forEach(function (photo) {
+        let [images] = row[5];
+        images = images ? images.split(",") : null;
+        
+        console.log(`Index ${index}. Typeof images: ${typeof images}, images: ${images}`);
+        if (images && Array.isArray(images)) {
+            images.forEach( async function (photo) {
                 if (photo) {
-                    let carouselItem = $("<div>").addClass("swiper-slide");
-                    carouselItem.append("<img src='" + photo + "' style='width: 100%; height: auto; bottom: 0;' alt='Carousel Photo'>");
+                    photo = await retryWithExponentialBackoff(photo, 3, 1000)
+                        .then(photo => photo || null)
+                        .catch((error) => {
+                        console.error('Request failed:', error);
+                    });
 
-                    swiperWrapper.append(carouselItem);
+                    //photo = await fetch(photo)
+                    if (photo != null) {
+                        let carouselItem = $("<div>").addClass("swiper-slide");
+                        carouselItem.append("<img src='" + photo + "' style='width: 100%; height: auto; bottom: 0;' alt='Carousel Photo'>");
+                        swiperWrapper.append(carouselItem);
+                        console.log(`Photo ${index}: ${photo} added to the carousel`);
+                    }
+
+                } else {
+                    console.log("No photo found for row: " + index);
                 }
             });
+        } else {
+            console.log(`no luck with photos for row ${index}`);
         }
 
         let mainPhoto = $("<div>").addClass("mainPhoto");
@@ -187,7 +281,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         while (Array.isArray(rowContents) && rowContents.length > 0 && !mainPhotoFound) {
             mainPhotoFound = rowContents[0] ? rowContents[0] : false;
             rowContents.shift();
-        } 
+        }
 
         mainPhotoFound = mainPhotoFound ? mainPhotoFound : '';
         mainPhoto.append(`<img src='${mainPhotoFound}' height='300' alt='Main Photo'>`);
@@ -195,7 +289,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         swiperContainer.append(swiperWrapper, pagination, buttonNext, buttonPrev);
 
         // Wrap Swiper container inside a new div
-        let swiperContainerWrapper = $('<div>').addClass('swiper-container-wrapper');``
+        let swiperContainerWrapper = $('<div>').addClass('swiper-container-wrapper'); 
         swiperContainerWrapper.append(swiperContainer);
 
         informationBlock.append(mainPhoto, details, swiperContainerWrapper);
@@ -204,8 +298,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         initializeSwiper(swiperId);
 
         let location = row[1]; // location
-
-        fee = parseFloat(row[0].replace(/[^0-9.-]+/g, ""))*1000; // fee
+        let fee = parseFloat(row[0].replace(/[^0-9.-]+/g, "")) * 1000; // fee
 
         if (fee < minFee) {
             minFee = fee;
@@ -217,9 +310,9 @@ document.addEventListener('DOMContentLoaded', async function () {
         informationBlock.data("fee", fee);
         informationBlock.data("location", location);
         informationBlock.show();
-    });
+    };
 
-    // Initialize the noUiSlider
+    // Initialize noUiSlider
     let rangeSliders = document.getElementById("rangeSliders");
     let feeRangeDisplay = document.getElementById("feeRangeDisplay");
     document.getElementById("spinner").style.display = "none";
@@ -233,7 +326,6 @@ document.addEventListener('DOMContentLoaded', async function () {
         },
     });
 
-
     // Update the fee range display initially
     feeRangeDisplay.innerText = currency(minFee) + " - " + currency(maxFee);
 
@@ -246,20 +338,60 @@ document.addEventListener('DOMContentLoaded', async function () {
         feeRangeDisplay.innerText = currency(parseInt(values[0])) + " - " + currency(parseInt(values[1]));
 
         // Filter the blocks
-        filterBlocks();
+        filterBlocks([values[0], values[1]], null);
     });
 
     // Create location filter buttons
     locations.forEach(function (location) {
-        let locationButton = $("<button>").addClass("filterButton active").text(location);
+        let locationButton = $("<button>")
+            .addClass("filterButton active")
+            .text(location)
+            .attr("data-location", location);
+
         locationButton.click(function () {
             $(this).toggleClass("active");
-            filteredLocations = [];
-            $(".filterButton.active").each(function () {
-                filteredLocations.push($(this).text());
-            });
-            filterBlocks();
+
+            const locationName = $(this).data("location");
+            const indexToRemove = filteredLocations.indexOf(locationName);
+
+            if (indexToRemove !== -1) {
+                filteredLocations.splice(indexToRemove, 1);
+            } else {
+                filteredLocations.push(locationName);
+            }
+            filterBlocks(null, locationName);
         });
         $("#locationFilter").append(locationButton);
     });
-});
+}
+
+loadScript('js/swiper-bundle.min.js', 'async');
+loadScript('js/nouislider.min.js', 'async');
+
+$(() => {
+    document.addEventListener('dataLoaded', renderContents);
+    document.addEventListener('assetsLoaded', renderAssets);
+
+    // Start the assets fetch
+    fetchData2(`${dataEndpoint}/assets`).then(assetsData => {
+        assets = assetsData;
+        // Assets are now loaded, trigger the assetsLoaded event
+        document.dispatchEvent(new Event('assetsLoaded'));
+    }).fail(error => {
+        console.error('Failed to load assets:', error);
+    });
+
+    // Bind to the ajaxStop event, which will fire after the assets fetch is complete
+    $(document).ajaxStop(function onAssetsLoaded() {
+        // Unbind the ajaxStop event to prevent the data fetch from re-triggering this
+        $(document).off('ajaxStop', onAssetsLoaded);
+
+        // Now that the assets are loaded, start the data fetch
+        fetchData2(`${dataEndpoint}/data`).then(dataResponse => {
+            data = dataResponse;
+            // Data is now loaded, trigger the dataLoaded event
+            document.dispatchEvent(new Event('dataLoaded'));
+        }).fail(error => {
+            console.error('Failed to load data:', error);
+        });
+    });
