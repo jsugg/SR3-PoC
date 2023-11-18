@@ -1,6 +1,6 @@
-const appRoot = require('app-root-path').path;
 const express = require('express');
 const apiRoutes = require('./index');
+const { getProdData, getSpreadsheetWebAssets } = require('../web/spreadsheetHandler');
 
 module.exports.createRouter = (logger) => {
     mainRouter = express.Router();
@@ -29,10 +29,6 @@ module.exports.createRouter = (logger) => {
     });
     
     mainRouter.use('/api', apiRoutes);
-    
-    mainRouter.use('/', function (req, res, next) {
-        next();
-    }, express.static(`${appRoot}/public`));
 
     return mainRouter;
 }

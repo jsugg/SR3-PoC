@@ -3,20 +3,15 @@
 
 <head>
     <title>O' Macaco</title>
-    <link rel="preconnect" href="bundle.js">
-    <link rel="dns-prefetch" href="bundle.js">
-    <script async src="bundle.js"></script>
+    <script src="js/jquery-3.6.0.min.js" defer></script>
+    <script src="bundle.js" defer></script>
     <link rel="stylesheet" type="text/css" href="styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="css/font-awesome.min.css">
+    <link rel="subresource" href="styles.css">
+  <!--   <link rel="subresource" href="css/font-awesome.min.css"> -->
     <base target="_top">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1">
-<!--    <script async src="js/scripts.js"></script>
-    <script defer type="text/javascript" src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/swiper@7.4.1/swiper-bundle.min.css">
-    <script async src="https://unpkg.com/swiper@7.4.1/swiper-bundle.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.css" />
-    <script async src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/14.6.4/nouislider.min.js"></script>-->
 </head>
 
 <body>
@@ -34,7 +29,7 @@
     </div>
 
     <div class="navbar" id="navigationBar">
-        <a href="javascript:void(0);" class="icon" onclick="">
+        <a href="javascript:void(0);" class="icon" id="hamburger" onclick="">
             <i class="fa fa-bars"></i>
         </a>
         <div class="upperNav">

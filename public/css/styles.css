@@ -213,16 +213,19 @@ p {
     border: 0;
     border-radius: 5px;
     margin: 10px;
-    font-size: 1.2em;
+    font-size: 1.1em;
     cursor: pointer;
+    z-index: 3;
 }
 
 .filterButton:focus {
     outline: 0;
+    font-size: 1.1em;
 }
 
 .filterButton.active {
     background: #FF4500;
+    font-size: 1.1em;
 }
 
 .navbar.responsive #feeFilter {
@@ -235,7 +238,7 @@ p {
     justify-content: center;
     text-align: center;
     color: white;
-    font-size: 1.4em;
+    font-size: 1.1em;
 }
 
 #rangeSliders {
@@ -244,6 +247,7 @@ p {
     margin-bottom: 10px;
     margin-left: 40px;
     margin-right: 40px;
+    font-size: 1.1em;
 }
 
 .noUi-horizontal {
@@ -318,6 +322,7 @@ p {
 
 #filterMenu {
     grid-column: 1 / -1;
+    font-size: 1.1em;
 }
 
 #feeFilter {
@@ -326,6 +331,7 @@ p {
     display: grid;
     justify-content: center;
     justify-items: center;
+    font-size: 1.1em;
 }
 
 #feeRangeDisplay,
@@ -334,7 +340,7 @@ p {
     justify-content: center;
     justify-items: center;
     position: relative;
-    font-size: 1.2em;
+    font-size: 1.1em;
 }
 
 #macaques {

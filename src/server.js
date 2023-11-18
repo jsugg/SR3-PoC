@@ -24,7 +24,8 @@ appRouter = createRouter(httpLogger);
 webRequestsRouter = createWebRequestsRouter(httpLogger);
 app.use(appRouter);
 app.use(webRequestsRouter);
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
+app.use(cors({ origin: 'null' }));
 app.use(bodyParser.json());
 
 const httpServer = createHttpServer(app, 'http');

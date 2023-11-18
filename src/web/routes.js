@@ -1,18 +1,23 @@
 // Website routes here, if needed
 const express = require('express');
+const appRoot = require('app-root-path').path;
 
 module.exports.createWebRequestsRouter = (logger) => {
 
-const webRouter = express.Router();
+  const webRouter = express.Router();
 
-mainRouter.use((req, res, next) => {
-  req.log = logger;
-  next();
-});
+  webRouter.use((req, res, next) => {
+    req.log = logger;
+    next();
+  });
 
-webRouter.get('/', (req, res) => {
-  res.sendFile('index.html', { root: '../public' });
-});
+  webRouter.use('/', function (req, res, next) {
+    next();
+  }, express.static(`${appRoot}/public`));
 
-return webRouter;
+  webRouter.get('/', (req, res) => {
+    res.sendFile('index.html', { root: '../public' });
+  });
+
+  return webRouter;
 };

@@ -309,50 +309,77 @@ async function getAndCacheImageAsBase64(imageUrl) {
     }
 }
 
+// async function getProdData() {
+//     const siteData = await getSpreadsheetData("[prod] main", "A:G");
+//     let cachedSiteData = {
+//         headerRow: siteData.headerRow,
+//         values: []
+//     }
+
+//     if (!siteData) {
+//         logger.error("No data found in spreadsheet");
+//         return null;
+//     }
+
+//     headerRow = siteData.headerRow;
+//     values = siteData.values;
+//     for (let row of values) {
+//         row[headerRow.indexOf("Photos")] = await Promise.all(row[headerRow.indexOf("Photos")].split(" ").map(async (photo) => {
+//             if (photo.length !== 0) {
+//                 return await new Promise(async (resolve, reject) => {
+//                     let record = await cachedFilesLookup(photo);
+
+//                     if (record) {
+//                         logger.info(`Found cached file: ${photo}. Cache ID: ${record}`);
+//                         resolve(getCachedFileUrl(record));
+//                     }
+//                     else {
+//                             await cacheFileToGoogleDrive(photo).then(cacheId => {
+//                                 if (cacheId) {
+//                                     logger.info(`Cached file: ${photo}. Cache ID: ${cacheId}`);
+//                                     return getCachedFileUrl(cacheId);
+//                                 }
+//                                 else {
+//                                     logger.error(`Failed to cache file: ${photo}`);
+//                                     return null;
+//                                 }
+//                             }).catch(error => { logger.error(`Error caching file: ${error}`); return null });
+//                     }
+//                 }).filter(photo => photo !== null);
+//             }
+//             row[headerRow.indexOf("Photos")] = await row[headerRow.indexOf("Photos")];
+
+//             cachedSiteData.values.push(row);
+//         }));
+//     }
+//     return cachedSiteData;
+// }
+
 async function getProdData() {
     const siteData = await getSpreadsheetData("[prod] main", "A:G");
-    let cachedSiteData = {
+    let organizedSiteData = {
         headerRow: siteData.headerRow,
         values: []
     }
-
-    if (!siteData) {
-        logger.error("No data found in spreadsheet");
-        return null;
-    }
-
     headerRow = siteData.headerRow;
     values = siteData.values;
+
     for (let row of values) {
         row[headerRow.indexOf("Photos")] = await Promise.all(row[headerRow.indexOf("Photos")].split(" ").map(async (photo) => {
-            if (photo.length !== 0) {
+            if (photo.trim() !== '') {
+                photo = photo.replace(/https/g, 'http');
+                photo = photo.replace(/http/g, 'https');
                 return await new Promise(async (resolve, reject) => {
-                    let record = await cachedFilesLookup(photo);
-
-                    if (record) {
-                        logger.info(`Found cached file: ${photo}. Cache ID: ${record}`);
-                        resolve(getCachedFileUrl(record));
+                    if (photo) { 
+                        resolve(photo);
                     }
-                    else {
-                            await cacheFileToGoogleDrive(photo).then(cacheId => {
-                                if (cacheId) {
-                                    logger.info(`Cached file: ${photo}. Cache ID: ${cacheId}`);
-                                    return getCachedFileUrl(cacheId);
-                                }
-                                else {
-                                    logger.error(`Failed to cache file: ${photo}`);
-                                    return null;
-                                }
-                            }).catch(error => { logger.error(`Error caching file: ${error}`); return null });
-                    }
-                }).filter(photo => photo !== null);
+                    else resolve(null);
+                });
             }
-            row[headerRow.indexOf("Photos")] = await row[headerRow.indexOf("Photos")];
-
-            cachedSiteData.values.push(row);
-        }));
+        }).filter(photo => photo !== null));
+        organizedSiteData.values.push(row);
     }
-    return cachedSiteData;
+    return organizedSiteData;
 }
 
 async function getSpreadsheetWebAssets(sheetName = "[WEB] Assets") {
@@ -373,8 +400,8 @@ async function getSpreadsheetWebAssets(sheetName = "[WEB] Assets") {
         let dataRows = values.slice(1);
         let data = await Promise.all(dataRows.map(async function (row) {
             let photo = row[headerRow.indexOf("Image")];
-            photo = await getImageAsBase64(photo)
-            .catch(error => logger.error(`Error fetching image: ${error}`));
+            //photo = await getImageAsBase64(photo)
+            //.catch(error => logger.error(`Error fetching image: ${error}`));
             return [
                 row[headerRow.indexOf("Id")],
                 photo
