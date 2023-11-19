@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -29,8 +30,10 @@ app.use(cors({ origin: 'null' }));
 app.use(bodyParser.json());
 
 const httpServer = createHttpServer(app, 'http');
-const httpsServer = createHttpServer(app, 'https');
 startServer(httpServer, SETTINGS.httpServerPort || 8080, logger);
-startServer(httpsServer, SETTINGS.httpsServerPort || 4443, logger);
+if (process.env.NODE_ENV != 'production') {
+  const httpsServer = createHttpServer(app, 'https');
+  startServer(httpsServer, SETTINGS.httpsServerPort || 4443, logger);
+} 
 
 startCronJobs();
