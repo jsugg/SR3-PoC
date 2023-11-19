@@ -6,7 +6,7 @@ const appRoot = require('app-root-path').path;
 const { logger, httpLogger } = require(`${appRoot}/src/utils/logger`);
 const { SETTINGS } = require(`${appRoot}/config/settings`);
 const { createRouter } = require(`${appRoot}/src/api/routes`);
-const { createHttpServer, startServer } = require(`${appRoot}/src/utils/server/serverFunctions`);
+const { createHttpsServer, createHttpServer, startServer } = require(`${appRoot}/src/utils/server/serverFunctions`);
 const { startCronJobs } = require(`${appRoot}/src/utils/cronJobs`);
 const { createWebRequestsRouter } = require(`${appRoot}/src/web/routes`);
 process.on('unhandledRejection', (reason, promise) => {
@@ -30,6 +30,8 @@ app.use(cors({ origin: 'null' }));
 app.use(bodyParser.json());
 
 const httpServer = createHttpServer(app, 'http');
+const httpsServer = createHttpsServer(app);
+startServer(httpsServer, SETTINGS.httpsServerPort || 4443, logger);
 startServer(httpServer, SETTINGS.httpServerPort || 8080, logger);
 if (process.env.NODE_ENV != 'production') {
   const httpsServer = createHttpServer(app, 'https');

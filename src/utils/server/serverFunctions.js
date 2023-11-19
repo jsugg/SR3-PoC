@@ -11,6 +11,10 @@ module.exports.createHttpServer = (app, protocol) => (
   }, app)
 )
 
+module.exports.createHttpsServer = (app, protocol) => (
+  https.createServer(app)
+)
+
 module.exports.startServer = (server, port, logger) => (
 server.listen(port, () => {
   logger.info(`Server is listening on port ${port}`);
