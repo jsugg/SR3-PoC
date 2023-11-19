@@ -2,7 +2,7 @@
   "name": "@jsugg/sr3",
   "version": "0.9",
   "description": "",
-  "main": "src/server.js.js",
+  "main": "src/server.js",
   "scripts": {
     "test": "jest",
     "cert": "sh ./scripts/dev.sh",
