@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest",
     "cert": "sh ./scripts/dev.sh",
-    "build": "rollup -c ./config/rollup.config.js",
+    "build": "npm i && rollup -c ./config/rollup.config.js",
     "dev": "npm run build && NODE_ENV=development node --trace-warnings 'src/server.js' | pino-pretty",
     "scrape": "node src/utils/scraper/index.js | pino-pretty",
     "prod": "npm run build && NODE_ENV=production && node src/server.js"

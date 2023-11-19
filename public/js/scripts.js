@@ -395,3 +395,4 @@ $(() => {
             console.error('Failed to load data:', error);
         });
     });
+});
